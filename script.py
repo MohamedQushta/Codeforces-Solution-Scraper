@@ -8,37 +8,37 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pyperclip
-
+from selenium.webdriver.chrome.service import Service
+import subprocess
 
 def initialize_driver(chromedriver_path):
     current_directory = os.getcwd()
-    chromedriver_path = os.path.join(current_directory, "chromedriver.exe")
+    chromedriver_path = os.path.join(current_directory, "chromedriver")
     os.environ["PATH"] += os.pathsep + os.path.dirname(chromedriver_path)
-
+    service = Service(executable_path=chromedriver_path)
     options = webdriver.ChromeOptions()
-    driver = webdriver.Chrome(executable_path=chromedriver_path, options=options)
+    driver = webdriver.Chrome(service=service, options=options)
     return driver
-
 
 def login(driver, user_name, pass_word):
     codeforces_url = "https://codeforces.com/"
     driver.get(codeforces_url)
 
-    enter_btn = driver.find_element_by_css_selector('a[href="/enter?back=%2F"]')
+    enter_btn = driver.find_element(By.CSS_SELECTOR, 'a[href="/enter?back=%2F"]')
     enter_btn.click()
 
-    handle_or_email = driver.find_element_by_id("handleOrEmail")
+    handle_or_email = driver.find_element(By.ID, "handleOrEmail")
     handle_or_email.clear()
     handle_or_email.send_keys(user_name)
 
-    password = driver.find_element_by_id("password")
+    password = driver.find_element(By.ID, "password")
     password.clear()
     password.send_keys(pass_word)
 
     # remember_me = driver.find_element_by_id("remember")
     # remember_me.click()
 
-    login_btn = driver.find_element_by_css_selector('input[type="submit"]')
+    login_btn = driver.find_element(By.CSS_SELECTOR, 'input[type="submit"]')
     login_btn.click()
 
 
@@ -195,7 +195,8 @@ def get_submission_links(driver):
             with open('problems_links.txt', 'a', encoding='utf-8') as file:
                 for row in submissions_table_rows[1:]:
                     try:
-                        link_element = row.find_elements_by_tag_name('td')[3].find_element_by_tag_name('a')
+                        row_elements = row.find_elements(By.TAG_NAME, 'td')
+                        link_element = row_elements[3].find_element(By.TAG_NAME, 'a')
                         problem_link = link_element.get_attribute('href')
                         if ("/gym/" in problem_link) or ("/edu/course/" in problem_link):
                             continue
@@ -204,7 +205,7 @@ def get_submission_links(driver):
                         continue
             file.close()
             try:
-                driver.find_element_by_link_text('→').click()
+                driver.find_element(By.LINK_TEXT, '→').click()
                 time.sleep(2)
             except Exception:
                 print("No More Pages\n")
@@ -221,7 +222,7 @@ def main():
     pass_key = input("Enter Your Password: ")
     extension = input("Enter The Extension You Want To Save The Files By: ")
 
-    chromedriver_path = "chromedriver.exe"
+    chromedriver_path = "chromedriver"
     driver = initialize_driver(chromedriver_path)
 
     login(driver, user, pass_key)
