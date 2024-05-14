@@ -6,6 +6,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
+import concurrent.futures
+from webdriver_manager.chrome import ChromeDriverManager
+import threading
+
 
 
 def initialize_driver(chromedriver_path):
@@ -32,7 +36,7 @@ def get_all_problems_from_page(driver, url):
     problem_row = WebDriverWait(driver, 30).until(
         EC.presence_of_all_elements_located((By.TAG_NAME, 'tr'))
     )
-    for i in range(1,40):
+    for i in range(1,30):
         cells = WebDriverWait(problem_row[i], 30).until(
             EC.presence_of_all_elements_located((By.TAG_NAME, 'td'))
         )
@@ -42,7 +46,7 @@ def get_all_problems_from_page(driver, url):
                 problem_id_text = problem_id_link.text
                 print(problem_id_text, end=" ")
             else:
-                elements_of_name_cell = WebDriverWait(cells[i],30).until(
+                elements_of_name_cell = WebDriverWait(cells[i],5).until(
                     EC.presence_of_all_elements_located((By.TAG_NAME, 'div'))
                 )
                 for i in range(len(elements_of_name_cell)):
@@ -51,26 +55,57 @@ def get_all_problems_from_page(driver, url):
                         problem_name_text = problem_name_link.text
                         print(problem_name_text, end=" ")
                     else:
-                        tags_list = WebDriverWait(elements_of_name_cell[i],30).until(
-                            EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
-                        )
-                        for tag in tags_list:
-                            tag_name = tag.text
-                            print(tag_name, end=" ")
+                        try:
+                            tags_list = WebDriverWait(elements_of_name_cell[i],30).until(
+                                EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
+                            )
+                            for tag in tags_list:
+                                tag_name = tag.text
+                                print(tag_name, end=" ")
+                        except
+                            print("mafeeeesh tags ya ashraaaaaaaaaaaaf")
+
+                        
         print()
 def main():
     chromedriver_path = "chromedriver"
     driver = initialize_driver(chromedriver_path)
     driver.get('https://codeforces.com/')
     navigate_to_problemset(driver)
-    get_all_problems_from_page(driver,"https://codeforces.com/problemset/")
+
+    mainlink = "https://codeforces.com/problemset/page/"
+    urls = []
+    for i in range(1,3):
+        urls.append(mainlink + str(i))
+    
+    
+    x = 3
+    threads = []
+    for _ in range(x):
+        t = threading.Thread(target=get_all_problems_from_page,daemon=True ,args=[driver, "https://codeforces.com/problemset/page/1"])
+        t.start()
+        threads.append(t)
+
+    for i in range(x):
+        threads[i].join()
+
+    # print(urls[1])
+    # with concurrent.futures.ThreadPoolExecutor() as executor:
+    #     executor.map(get_all_problems_from_page, (driver, mainlink + "1"))
+
+    # for i in range(1,4):
+    #     get_all_problems_from_page(driver,f"https://codeforces.com/problemset/page/{i}")
+
 
     driver.quit()
 
 
 if __name__ == "__main__":
     try:
+        start = time.perf_counter()
         main()
+        finish = time.perf_counter()
+        print(f"Finished in {round(finish-start, 2)} second(s)")
     except selenium.common.exceptions.NoSuchWindowException:
         print("The browser window was closed by user.")
     except Exception as e:
