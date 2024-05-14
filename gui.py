@@ -19,6 +19,7 @@ class LoginPage(QWidget):
         self.setStyleSheet("background-color: #f0f0f0;")
 
         self.initUI()
+        
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -94,6 +95,7 @@ class HomePage(QWidget):
         self.setStyleSheet("background-color: #f0f0f0;")
 
         self.initUI()
+        self.noOfThread = 0
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -133,8 +135,8 @@ class HomePage(QWidget):
         
         layout.addLayout(self.thread_input_layout)
 
-        self.table = QTableWidget(0, 3)  # Initially 0 rows, 3 columns
-        self.table.setHorizontalHeaderLabels(["Problem ID", "Problem Name", "Tag"])
+        self.table = QTableWidget(0, 4)  # Initially 0 rows, 3 columns
+        self.table.setHorizontalHeaderLabels(["Thread ID","Problem ID", "Problem Name", "Tag"])
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table.horizontalHeader().setFixedHeight(50)  # Set header height
         self.table.setStyleSheet("border: 2px solid #ccc; border-radius: 10px; padding: 10px;")
@@ -186,18 +188,20 @@ class HomePage(QWidget):
 
         self.setLayout(layout)
 
-    def add_row(self, problem_id, problem_name, tags):
+    def add_row(self, thread_id, problem_id, problem_name, tags):
         row_position = self.table.rowCount()
         self.table.insertRow(row_position)
-        self.table.setItem(row_position, 0, QTableWidgetItem(problem_id))
-        self.table.setItem(row_position, 1, QTableWidgetItem(problem_name))
-        self.table.setItem(row_position, 2, QTableWidgetItem(tags))
+        
+        self.table.setItem(row_position, 0, QTableWidgetItem(thread_id))
+        self.table.setItem(row_position, 1, QTableWidgetItem(problem_id))
+        self.table.setItem(row_position, 2, QTableWidgetItem(problem_name))
+        self.table.setItem(row_position, 3, QTableWidgetItem(tags))
 
     def start_scraping(self):
         chromedriver_path = "C:/New folder/scheds/Codeforces-Solution-Scraper/chromedriver.exe"  # Ensure this path is correct
 
         # Run the scraper in a separate thread to avoid blocking the UI
-        self.scraping_thread = threading.Thread(target=scraper_main, args=(chromedriver_path, self))
+        self.scraping_thread = threading.Thread(target=scraper_main, args=(chromedriver_path, self.noOfThread,self))
         self.scraping_thread.start()
 
     def stop_scraping(self):
@@ -205,6 +209,7 @@ class HomePage(QWidget):
 
     def test_input(self):
         print(f"Entered number of threads: {self.thread_input.text()}")
+        self.noOfThread = self.thread_input.text()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

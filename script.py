@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 import concurrent.futures
+import threading
 
 def initialize_driver(chromedriver_path):
     # Ensure chromedriver path is correct
@@ -28,7 +29,7 @@ def navigate_to_problemset(driver):
     )
     problemset_btn.click()
 
-def get_all_problems_from_page(driver, url, home_page):
+def get_all_problems_from_page(driver,thread_id, url, home_page):
     driver.get(url)
     time.sleep(3)
     problem_rows = WebDriverWait(driver, 30).until(
@@ -64,18 +65,23 @@ def get_all_problems_from_page(driver, url, home_page):
                 except:
                     tags.append("No tags")
 
-        home_page.add_row(problem_id, problem_name, ", ".join(tags))
+        home_page.add_row(thread_id, problem_id, problem_name, ", ".join(tags))
 
-def main(chromedriver_path, home_page):
+def main(chromedriver_path, noOfThreads, home_page):
     driver = initialize_driver(chromedriver_path)
     driver.get('https://codeforces.com/')
     navigate_to_problemset(driver)
 
     mainlink = "https://codeforces.com/problemset/page/"
-    urls = [mainlink + str(i) for i in range(1, 3)]
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [executor.submit(get_all_problems_from_page, driver, url, home_page) for url in urls]
-        concurrent.futures.wait(futures)
+    threads = []
+    for i in range(int(noOfThreads)):
+        tname = f"Thread {i+1}"
+        t = threading.Thread(target=get_all_problems_from_page,daemon=True ,args=[driver, tname,f"https://codeforces.com/problemset/page/{i}" , home_page])
+        t.start()
+        threads.append(t)
+
+    for i in range(int(noOfThreads)):
+        threads[i].join()
 
     driver.quit()
