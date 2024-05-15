@@ -7,25 +7,25 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 import concurrent.futures
-from webdriver_manager.chrome import ChromeDriverManager
 import threading
 
-
-
 def initialize_driver(chromedriver_path):
-    current_directory = os.getcwd()
-    chromedriver_path = os.path.join(current_directory, "chromedriver")
-    os.environ["PATH"] += os.pathsep + os.path.dirname(chromedriver_path)
+    # Ensure chromedriver path is correct
+    if not os.path.isfile(chromedriver_path):
+        raise FileNotFoundError(f"ChromeDriver not found at path: {chromedriver_path}")
+
+    # Explicitly set the path to the chromedriver executable
     service = Service(executable_path=chromedriver_path)
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
+    options.add_argument("--headless")  # Optional: run in headless mode
+    
+    # Initialize the driver
     driver = webdriver.Chrome(service=service, options=options)
     return driver
 
-
 def navigate_to_problemset(driver):
     problemset_btn = WebDriverWait(driver, 30).until(
-        EC.element_to_be_clickable( (By.CSS_SELECTOR, f'a[href="/problemset') )
+        EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href="/problemset"]'))
     )
     problemset_btn.click()
 

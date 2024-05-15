@@ -4,26 +4,11 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QLineEdit,
                              QTableWidget, QTableWidgetItem, QHeaderView, QHBoxLayout)
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+import threading
+import time
 
-def login(driver, user_name, pass_word):
-    codeforces_url = "https://codeforces.com/"
-    driver.get(codeforces_url)
-
-    enter_btn = driver.find_element(By.CSS_SELECTOR, 'a[href="/enter?back=%2F"]')
-    enter_btn.click()
-
-    handle_or_email = driver.find_element(By.ID, "handleOrEmail")
-    handle_or_email.clear()
-    handle_or_email.send_keys(user_name)
-
-    password = driver.find_element(By.ID, "password")
-    password.clear()
-    password.send_keys(pass_word)
-
-    login_btn = driver.find_element(By.CSS_SELECTOR, 'input[type="submit"]')
-    login_btn.click()
+# Import the scraping function from the separate file
+from script import main as scraper_main
 
 class LoginPage(QWidget):
     def __init__(self):
@@ -34,6 +19,7 @@ class LoginPage(QWidget):
         self.setStyleSheet("background-color: #f0f0f0;")
 
         self.initUI()
+        
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -109,6 +95,7 @@ class HomePage(QWidget):
         self.setStyleSheet("background-color: #f0f0f0;")
 
         self.initUI()
+        self.noOfThread = 0
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -148,8 +135,8 @@ class HomePage(QWidget):
         
         layout.addLayout(self.thread_input_layout)
 
-        self.table = QTableWidget(0, 2)  # Initially 0 rows, 2 columns
-        self.table.setHorizontalHeaderLabels(["Problem ID", "Tag"])
+        self.table = QTableWidget(0, 4)  # Initially 0 rows, 3 columns
+        self.table.setHorizontalHeaderLabels(["Thread ID","Problem ID", "Problem Name", "Tag"])
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table.horizontalHeader().setFixedHeight(50)  # Set header height
         self.table.setStyleSheet("border: 2px solid #ccc; border-radius: 10px; padding: 10px;")
@@ -157,7 +144,7 @@ class HomePage(QWidget):
 
         # Adding the buttons
         button_layout = QHBoxLayout()
-        self.start_button = QPushButton("Start")
+        self.start_button = QPushButton("Start Scraping")
         self.start_button.setFont(QFont("Arial", 16))
         self.start_button.setFixedHeight(50)
         self.start_button.setStyleSheet("""
@@ -177,12 +164,12 @@ class HomePage(QWidget):
         self.start_button.clicked.connect(self.start_scraping)
         button_layout.addWidget(self.start_button)
 
-        self.stop_button = QPushButton("Stop")
+        self.stop_button = QPushButton("Stop Scraping")
         self.stop_button.setFont(QFont("Arial", 16))
         self.stop_button.setFixedHeight(50)
         self.stop_button.setStyleSheet("""
             QPushButton {
-                background-color: #F44336; 
+                background-color: #f44336; 
                 color: white; 
                 border: none; 
                 border-radius: 10px;
@@ -201,20 +188,28 @@ class HomePage(QWidget):
 
         self.setLayout(layout)
 
-    def add_row(self, problem_id, tag):
+    def add_row(self, thread_id, problem_id, problem_name, tags):
         row_position = self.table.rowCount()
         self.table.insertRow(row_position)
-        self.table.setItem(row_position, 0, QTableWidgetItem(problem_id))
-        self.table.setItem(row_position, 1, QTableWidgetItem(tag))
+        
+        self.table.setItem(row_position, 0, QTableWidgetItem(thread_id))
+        self.table.setItem(row_position, 1, QTableWidgetItem(problem_id))
+        self.table.setItem(row_position, 2, QTableWidgetItem(problem_name))
+        self.table.setItem(row_position, 3, QTableWidgetItem(tags))
 
     def start_scraping(self):
-        print("Start scraping...")
+        chromedriver_path = "C:/New folder/scheds/Codeforces-Solution-Scraper/chromedriver.exe"  # Ensure this path is correct
+
+        # Run the scraper in a separate thread to avoid blocking the UI
+        self.scraping_thread = threading.Thread(target=scraper_main, args=(chromedriver_path, self.noOfThread,self))
+        self.scraping_thread.start()
 
     def stop_scraping(self):
         print("Stop scraping...")
 
     def test_input(self):
         print(f"Entered number of threads: {self.thread_input.text()}")
+        self.noOfThread = self.thread_input.text()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
