@@ -30,13 +30,14 @@ def navigate_to_problemset(driver):
     problemset_btn.click()
 
 
-def get_all_problems_from_page(driver, url):
+def get_all_problems_from_page(driver, url, threadname):
     driver.get(url)
     time.sleep(3)
+    
     problem_row = WebDriverWait(driver, 30).until(
         EC.presence_of_all_elements_located((By.TAG_NAME, 'tr'))
     )
-    for i in range(1,30):
+    for i in range(1,50):
         cells = WebDriverWait(problem_row[i], 30).until(
             EC.presence_of_all_elements_located((By.TAG_NAME, 'td'))
         )
@@ -44,6 +45,7 @@ def get_all_problems_from_page(driver, url):
             if i == 0: ##problem id
                 problem_id_link = cells[i].find_element(By.TAG_NAME, "a")
                 problem_id_text = problem_id_link.text
+                print(threadname, end=": ")
                 print(problem_id_text, end=" ")
             else:
                 elements_of_name_cell = WebDriverWait(cells[i],5).until(
@@ -56,14 +58,14 @@ def get_all_problems_from_page(driver, url):
                         print(problem_name_text, end=" ")
                     else:
                         try:
-                            tags_list = WebDriverWait(elements_of_name_cell[i],30).until(
-                                EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
+                            tags_list = WebDriverWait(elements_of_name_cell[i],0.001).until(
+                                EC.visibility_of_all_elements_located((By.TAG_NAME, 'a'))
                             )
                             for tag in tags_list:
                                 tag_name = tag.text
                                 print(tag_name, end=" ")
-                        except
-                            print("mafeeeesh tags ya ashraaaaaaaaaaaaf")
+                        except:
+                            pass
 
                         
         print()
@@ -74,27 +76,17 @@ def main():
     navigate_to_problemset(driver)
 
     mainlink = "https://codeforces.com/problemset/page/"
-    urls = []
-    for i in range(1,3):
-        urls.append(mainlink + str(i))
     
-    
-    x = 3
+    noOfThreads = 10
     threads = []
-    for _ in range(x):
-        t = threading.Thread(target=get_all_problems_from_page,daemon=True ,args=[driver, "https://codeforces.com/problemset/page/1"])
+    for i in range(noOfThreads):
+        tname = f"Thread {i+1}"
+        t = threading.Thread(target=get_all_problems_from_page,daemon=True ,args=[driver, "https://codeforces.com/problemset/page/{i}", tname])
         t.start()
         threads.append(t)
 
-    for i in range(x):
+    for i in range(noOfThreads):
         threads[i].join()
-
-    # print(urls[1])
-    # with concurrent.futures.ThreadPoolExecutor() as executor:
-    #     executor.map(get_all_problems_from_page, (driver, mainlink + "1"))
-
-    # for i in range(1,4):
-    #     get_all_problems_from_page(driver,f"https://codeforces.com/problemset/page/{i}")
 
 
     driver.quit()
@@ -110,3 +102,5 @@ if __name__ == "__main__":
         print("The browser window was closed by user.")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
