@@ -7,33 +7,33 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 import requests
+import concurrent.futures
+import threading
 
 def initialize_driver(chromedriver_path):
-    current_directory = os.getcwd()
-    chromedriver_path = os.path.join(current_directory, "chromedriver")
-    os.environ["PATH"] += os.pathsep + os.path.dirname(chromedriver_path)
+    # Ensure chromedriver path is correct
+    if not os.path.isfile(chromedriver_path):
+        raise FileNotFoundError(f"ChromeDriver not found at path: {chromedriver_path}")
+
+    # Explicitly set the path to the chromedriver executable
     service = Service(executable_path=chromedriver_path)
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
+    options.add_argument("--headless")  # Optional: run in headless mode
+    
+    # Initialize the driver
     driver = webdriver.Chrome(service=service, options=options)
     return driver
 
 
-def navigate_to_problemset(driver):
-    problemset_btn = WebDriverWait(driver, 30).until(
-        EC.element_to_be_clickable( (By.CSS_SELECTOR, f'a[href="/problemset') )
-    )
-    problemset_btn.click()
 
-
-def get_all_problems_from_page(driver, url):
+def get_all_problems_from_page(driver,thread_id, url, home_page):
     driver.get(url)
     time.sleep(3)
-    problem_row = WebDriverWait(driver, 30).until(
+    problem_rows = WebDriverWait(driver, 30).until(
         EC.presence_of_all_elements_located((By.TAG_NAME, 'tr'))
     )
-    for i in range(1,40):
-        cells = WebDriverWait(problem_row[i], 30).until(
+    for i in range(1, 30):
+        cells = WebDriverWait(problem_rows[i], 30).until(
             EC.presence_of_all_elements_located((By.TAG_NAME, 'td'))
         )
         for i in range(2):
@@ -84,18 +84,49 @@ def get_all_problems_from_page(driver, url):
         print()
 def main():
     chromedriver_path = "chromedriver"
+        problem_id = ""
+        problem_name = ""
+        tags = []
+
+        if cells:
+            problem_id_link = cells[0].find_element(By.TAG_NAME, "a")
+            problem_id = problem_id_link.text
+
+            elements_of_name_cell = WebDriverWait(cells[1], 5).until(
+                EC.presence_of_all_elements_located((By.TAG_NAME, 'div'))
+            )
+
+            if elements_of_name_cell:
+                problem_name_link = elements_of_name_cell[0].find_element(By.TAG_NAME, 'a')
+                problem_name = problem_name_link.text
+
+                try:
+                    tags_list = WebDriverWait(elements_of_name_cell[-1], 30).until(
+                        EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
+                    )
+                    for tag in tags_list:
+                        tag_name = tag.text
+                        tags.append(tag_name)
+                except:
+                    tags.append("No tags")
+
+        home_page.add_row(thread_id, problem_id, problem_name, ", ".join(tags))
+
+def main(chromedriver_path, noOfThreads, home_page):
     driver = initialize_driver(chromedriver_path)
     driver.get('https://codeforces.com/')
     navigate_to_problemset(driver)
-    get_all_problems_from_page(driver,"https://codeforces.com/problemset/")
+
+    mainlink = "https://codeforces.com/problemset/page/"
+
+    threads = []
+    for i in range(int(noOfThreads)):
+        tname = f"Thread {i+1}"
+        t = threading.Thread(target=get_all_problems_from_page,daemon=True ,args=[driver, tname,f"https://codeforces.com/problemset/page/{i}" , home_page])
+        t.start()
+        threads.append(t)
+
+    for i in range(int(noOfThreads)):
+        threads[i].join()
 
     driver.quit()
-
-
-if __name__ == "__main__":
-    try:
-        main()
-    except selenium.common.exceptions.NoSuchWindowException:
-        print("The browser window was closed by user.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
