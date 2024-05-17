@@ -6,8 +6,6 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 import threading
 import time
-
-# Import the scraping function from the separate file
 from script import main as scraper_main
 
 class LoginPage(QWidget):
@@ -15,7 +13,7 @@ class LoginPage(QWidget):
         super().__init__()
 
         self.setWindowTitle("Login")
-        self.setGeometry(0, 0, 500, 400)  # Set initial size
+        self.setGeometry(0, 0, 500, 400)  
         self.setStyleSheet("background-color: #f0f0f0;")
 
         self.initUI()
@@ -32,7 +30,7 @@ class LoginPage(QWidget):
         self.username = QLineEdit(self)
         self.username.setPlaceholderText("Username")
         self.username.setFont(QFont("Arial", 14))
-        self.username.setAlignment(Qt.AlignCenter)  # Center align text
+        self.username.setAlignment(Qt.AlignCenter)  
         self.username.setFixedHeight(40)
         self.username.setStyleSheet("border: 2px solid #ccc; border-radius: 10px; padding: 10px;")
         layout.addWidget(self.username)
@@ -40,7 +38,7 @@ class LoginPage(QWidget):
         self.password = QLineEdit(self)
         self.password.setPlaceholderText("Password")
         self.password.setFont(QFont("Arial", 14))
-        self.password.setAlignment(Qt.AlignCenter)  # Center align text
+        self.password.setAlignment(Qt.AlignCenter) 
         self.password.setFixedHeight(40)
         self.password.setEchoMode(QLineEdit.Password)
         self.password.setStyleSheet("border: 2px solid #ccc; border-radius: 10px; padding: 10px;")
@@ -80,7 +78,7 @@ class LoginPage(QWidget):
         self.home_page.show()
 
     def highlight_border(self):
-        sender = self.sender()  # Get the sender widget
+        sender = self.sender()  
         if sender.text():
             sender.setStyleSheet("border: 2px solid #4CAF50; border-radius: 10px; padding: 10px;")
         else:
@@ -135,14 +133,13 @@ class HomePage(QWidget):
         
         layout.addLayout(self.thread_input_layout)
 
-        self.table = QTableWidget(0, 4)  # Initially 0 rows, 3 columns
+        self.table = QTableWidget(0, 4)  
         self.table.setHorizontalHeaderLabels(["Thread ID","Problem ID", "Problem Name", "Tag"])
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.table.horizontalHeader().setFixedHeight(50)  # Set header height
+        self.table.horizontalHeader().setFixedHeight(50)  
         self.table.setStyleSheet("border: 2px solid #ccc; border-radius: 10px; padding: 10px;")
         layout.addWidget(self.table)
 
-        # Adding the buttons
         button_layout = QHBoxLayout()
         self.start_button = QPushButton("Start Scraping")
         self.start_button.setFont(QFont("Arial", 16))
@@ -198,9 +195,8 @@ class HomePage(QWidget):
         self.table.setItem(row_position, 3, QTableWidgetItem(tags))
 
     def start_scraping(self):
-        chromedriver_path = "./chromedriver"  # Ensure this path is correct
+        chromedriver_path = "./chromedriver"  
 
-        # Run the scraper in a separate thread to avoid blocking the UI
         self.scraping_thread = threading.Thread(target=scraper_main, args=(chromedriver_path, self.noOfThread,self))
         self.scraping_thread.start()
 
