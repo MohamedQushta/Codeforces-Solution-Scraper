@@ -6,85 +6,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 import threading
 import time
-
-# Import the scraping function from the separate file
 from script import main as scraper_main
-
-class LoginPage(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        self.setWindowTitle("Login")
-        self.setGeometry(0, 0, 500, 400)  # Set initial size
-        self.setStyleSheet("background-color: #f0f0f0;")
-
-        self.initUI()
-        
-
-    def initUI(self):
-        layout = QVBoxLayout()
-
-        self.label = QLabel("Please log in")
-        self.label.setFont(QFont("Arial", 20))
-        self.label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.label)
-
-        self.username = QLineEdit(self)
-        self.username.setPlaceholderText("Username")
-        self.username.setFont(QFont("Arial", 14))
-        self.username.setAlignment(Qt.AlignCenter)  # Center align text
-        self.username.setFixedHeight(40)
-        self.username.setStyleSheet("border: 2px solid #ccc; border-radius: 10px; padding: 10px;")
-        layout.addWidget(self.username)
-
-        self.password = QLineEdit(self)
-        self.password.setPlaceholderText("Password")
-        self.password.setFont(QFont("Arial", 14))
-        self.password.setAlignment(Qt.AlignCenter)  # Center align text
-        self.password.setFixedHeight(40)
-        self.password.setEchoMode(QLineEdit.Password)
-        self.password.setStyleSheet("border: 2px solid #ccc; border-radius: 10px; padding: 10px;")
-        layout.addWidget(self.password)
-
-        self.login_button = QPushButton("Login")
-        self.login_button.setFont(QFont("Arial", 16))
-        self.login_button.setFixedHeight(50)
-        self.login_button.setStyleSheet("""
-            QPushButton {
-                background-color: #4CAF50; 
-                color: white; 
-                border: none; 
-                border-radius: 10px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-            QPushButton:pressed {
-                background-color: #397d3d;
-            }
-        """)
-        self.login_button.clicked.connect(self.check_login)
-        layout.addWidget(self.login_button)
-
-        self.setLayout(layout)
-
-    def check_login(self):
-        if self.username.text() == "admin" and self.password.text() == "password":
-            self.accept_login()
-        else:
-            QMessageBox.warning(self, "Error", "Incorrect Username or Password")
-
-    def accept_login(self):
-        self.hide()
-        self.home_page = HomePage()
-        self.home_page.show()
-
-    def highlight_border(self):
-        sender = self.sender()  # Get the sender widget
-        if sender.text():
-            sender.setStyleSheet("border: 2px solid #4CAF50; border-radius: 10px; padding: 10px;")
-        else:
-            sender.setStyleSheet("border: 2px solid #ccc; border-radius: 10px; padding: 10px;")
 
 class HomePage(QWidget):
     def __init__(self):
@@ -96,6 +18,7 @@ class HomePage(QWidget):
 
         self.initUI()
         self.noOfThread = 0
+        self.stop_flag = threading.Event()
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -135,14 +58,13 @@ class HomePage(QWidget):
         
         layout.addLayout(self.thread_input_layout)
 
-        self.table = QTableWidget(0, 4)  # Initially 0 rows, 3 columns
+        self.table = QTableWidget(0, 4)  
         self.table.setHorizontalHeaderLabels(["Thread ID","Problem ID", "Problem Name", "Tag"])
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.table.horizontalHeader().setFixedHeight(50)  # Set header height
+        self.table.horizontalHeader().setFixedHeight(50)  
         self.table.setStyleSheet("border: 2px solid #ccc; border-radius: 10px; padding: 10px;")
         layout.addWidget(self.table)
 
-        # Adding the buttons
         button_layout = QHBoxLayout()
         self.start_button = QPushButton("Start Scraping")
         self.start_button.setFont(QFont("Arial", 16))
@@ -198,13 +120,13 @@ class HomePage(QWidget):
         self.table.setItem(row_position, 3, QTableWidgetItem(tags))
 
     def start_scraping(self):
-        chromedriver_path = "C:/New folder/scheds/Codeforces-Solution-Scraper/chromedriver.exe"  # Ensure this path is correct
-
-        # Run the scraper in a separate thread to avoid blocking the UI
-        self.scraping_thread = threading.Thread(target=scraper_main, args=(chromedriver_path, self.noOfThread,self))
+        chromedriver_path = "./chromedriver"
+        self.stop_flag.clear()
+        self.scraping_thread = threading.Thread(target=scraper_main, args=(chromedriver_path, self.noOfThread, self, self.stop_flag))
         self.scraping_thread.start()
 
     def stop_scraping(self):
+        self.stop_flag.set()
         print("Stop scraping...")
 
     def test_input(self):
@@ -212,7 +134,9 @@ class HomePage(QWidget):
         self.noOfThread = self.thread_input.text()
 
 if __name__ == '__main__':
+    
     app = QApplication(sys.argv)
-    login_page = LoginPage()
-    login_page.show()
+    home_page = HomePage()
+    home_page.show()
+
     sys.exit(app.exec_())
