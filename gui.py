@@ -198,7 +198,7 @@ class HomePage(QWidget):
         self.table.setItem(row_position, 3, QTableWidgetItem(tags))
 
     def start_scraping(self):
-        chromedriver_path = "C:/New folder/scheds/Codeforces-Solution-Scraper/chromedriver.exe"  # Ensure this path is correct
+        chromedriver_path = "./chromedriver"  # Ensure this path is correct
 
         # Run the scraper in a separate thread to avoid blocking the UI
         self.scraping_thread = threading.Thread(target=scraper_main, args=(chromedriver_path, self.noOfThread,self))

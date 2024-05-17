@@ -147,13 +147,14 @@ def main(chromedriver_path, noOfThreads, home_page):
     mainlink = "https://codeforces.com/problemset/page/"
 
     threads = []
-    for i in range(int(noOfThreads)):
-        tname = f"Thread {i+1}"
+    for i in range(1, int(noOfThreads)+1):
+        tname = f"Thread {i}"
+        driver = initialize_driver(chromedriver_path)
         t = threading.Thread(target=get_all_problems_from_page,daemon=True ,args=[driver, tname,f"https://codeforces.com/problemset/page/{i}" , home_page])
         t.start()
         threads.append(t)
         
-    for i in range(int(noOfThreads)):
+    for i in range(int(noOfThreads)-1):
         threads[i].join()
 
     driver.quit()
