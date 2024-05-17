@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
-
+import requests
 
 def initialize_driver(chromedriver_path):
     current_directory = os.getcwd()
@@ -40,6 +40,8 @@ def get_all_problems_from_page(driver, url):
             if i == 0: ##problem id
                 problem_id_link = cells[i].find_element(By.TAG_NAME, "a")
                 problem_id_text = problem_id_link.text
+                problem_link_url = problem_id_link.get_attribute("href")
+                response = requests.get(problem_link_url)
                 print(problem_id_text, end=" ")
             else:
                 elements_of_name_cell = WebDriverWait(cells[i],30).until(
@@ -54,9 +56,31 @@ def get_all_problems_from_page(driver, url):
                         tags_list = WebDriverWait(elements_of_name_cell[i],30).until(
                             EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
                         )
-                        for tag in tags_list:
-                            tag_name = tag.text
-                            print(tag_name, end=" ")
+                        html_content = """
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta http-equiv="refresh" content="0;url={}">
+                            <title>Redirecting...</title>
+                        </head>
+                        <body>
+                            <p>If you are not redirected, <a href="{}">click here</a>.</p>
+                        </body>
+                        </html>
+                        """.format(problem_link_url, problem_link_url)
+                        # print(html_content)
+    
+                        if response.status_code == 200:
+                            for tag in tags_list:
+                                tag_name = tag.text
+                                print(tag_name, end=" ")
+                                tag_folder = "./{}".format(tag_name)
+                                if not os.path.exists(tag_folder):
+                                    os.makedirs(tag_folder)
+                                with open("{}/{}.html".format(tag_folder, problem_name_text), "w") as file:
+                                        file.write(html_content)
+                                    
         print()
 def main():
     chromedriver_path = "chromedriver"
