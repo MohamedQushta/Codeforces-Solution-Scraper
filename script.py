@@ -23,11 +23,7 @@ def initialize_driver(chromedriver_path):
     driver = webdriver.Chrome(service=service, options=options)
     return driver
 
-def navigate_to_problemset(driver):
-    problemset_btn = WebDriverWait(driver, 30).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href="/problemset"]'))
-    )
-    problemset_btn.click()
+
 
 def get_all_problems_from_page(driver,thread_id, url, home_page):
     driver.get(url)
