@@ -123,6 +123,7 @@ class HomePage(QWidget):
         chromedriver_path = "./chromedriver"
         self.stop_flag.clear()
         self.scraping_thread = threading.Thread(target=scraper_main, args=(chromedriver_path, self.noOfThread, self, self.stop_flag))
+
         self.scraping_thread.start()
 
     def stop_scraping(self):

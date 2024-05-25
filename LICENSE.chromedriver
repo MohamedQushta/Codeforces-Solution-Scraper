@@ -89,6 +89,7 @@ dynamic annotations
  */
 
 --------------------
+<<<<<<< Updated upstream
 google-glog's symbolization library
 --------------------
 // Copyright (c) 2006, Google Inc.
@@ -146,6 +147,8 @@ xdg-user-dirs
   SOFTWARE.
 
 --------------------
+=======
+>>>>>>> Stashed changes
 QUICHE
 --------------------
 // Copyright 2015 The Chromium Authors. All rights reserved.
@@ -2101,6 +2104,18 @@ Crashpad
    limitations under the License.
 
 --------------------
+<<<<<<< Updated upstream
+=======
+getopt
+--------------------
+Copyright (C) 1997 Gregory Pietsch
+
+[These files] are hereby placed in the public domain without restrictions. Just
+give the author credit, don't claim you wrote it or prevent anyone else from
+using it.
+
+--------------------
+>>>>>>> Stashed changes
 CRC32C
 --------------------
 Copyright 2017, The CRC32C Authors.
@@ -3137,6 +3152,7 @@ necessary.  Here is a sample; alter the names:
 
 That's all there is to it!
 --------------------
+<<<<<<< Updated upstream
 fontconfig
 --------------------
 fontconfig/COPYING
@@ -3341,6 +3357,8 @@ fontconfig/src/ftglue.[ch]
  */
 
 --------------------
+=======
+>>>>>>> Stashed changes
 FreeType
 --------------------
                     The FreeType Project LICENSE
@@ -4410,6 +4428,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 --------------------
+<<<<<<< Updated upstream
 libevent
 --------------------
 Libevent is available for use under the following license, commonly known
@@ -4467,6 +4486,8 @@ tree.h:
    Copyright 2002 Niels Provos <provos@citi.umich.edu>
 
 --------------------
+=======
+>>>>>>> Stashed changes
 libjpeg-turbo
 --------------------
 libjpeg-turbo Licenses
@@ -4741,6 +4762,7 @@ this source code in a product, acknowledgment is not required but would
 be appreciated.
 
 --------------------
+<<<<<<< Updated upstream
 libsecret
 --------------------
                   GNU LESSER GENERAL PUBLIC LICENSE
@@ -5246,6 +5268,8 @@ necessary.  Here is a sample; alter the names:
 
 That's all there is to it!
 --------------------
+=======
+>>>>>>> Stashed changes
 libsrtp
 --------------------
 /*
@@ -5285,6 +5309,7 @@ libsrtp
  */
 
 --------------------
+<<<<<<< Updated upstream
 Android Explicit Synchronization
 --------------------
 
@@ -5491,6 +5516,8 @@ Android Explicit Synchronization
    limitations under the License.
 
 --------------------
+=======
+>>>>>>> Stashed changes
 URL Pattern Library
 --------------------
 The MIT License (MIT)
@@ -5609,6 +5636,7 @@ for these implementations of WebM shall terminate as of the date such
 litigation is filed.
 
 --------------------
+<<<<<<< Updated upstream
 libxml
 --------------------
 Except where otherwise noted in the source code (e.g. the files dict.c and
@@ -5636,6 +5664,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 --------------------
+=======
+>>>>>>> Stashed changes
 libyuv
 --------------------
 Copyright 2011 The LibYuv Project Authors. All rights reserved.

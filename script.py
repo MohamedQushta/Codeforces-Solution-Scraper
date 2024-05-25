@@ -9,15 +9,17 @@ import requests
 import threading
 
 def initialize_driver(chromedriver_path):
+
     if not os.path.isfile(chromedriver_path):
         raise FileNotFoundError(f"ChromeDriver not found at path: {chromedriver_path}")
 
     service = Service(executable_path=chromedriver_path)
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
-    
+
     driver = webdriver.Chrome(service=service, options=options)
     return driver
+
 
 def get_all_problems_from_page(driver, thread_id, url, home_page, stop_flag):
     driver.get(url)
@@ -36,7 +38,7 @@ def get_all_problems_from_page(driver, thread_id, url, home_page, stop_flag):
         problem_id = ""
         problem_name = ""
         tags = []
-
+        
         if cells:
             problem_id_link = cells[0].find_element(By.TAG_NAME, "a")
             problem_id = problem_id_link.text
@@ -75,7 +77,6 @@ def get_all_problems_from_page(driver, thread_id, url, home_page, stop_flag):
                         problem_name_link = elements_of_name_cell[i].find_element(By.TAG_NAME, 'a')
                         problem_name_text = problem_name_link.text
                         print(problem_name_text, end=" ")
-
                     else:
                         tags_list = WebDriverWait(elements_of_name_cell[i],30).until(
                             EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
